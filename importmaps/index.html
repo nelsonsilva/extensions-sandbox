@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <!-- These are the static import maps we'd like to override -->
+    <!-- script type="importmap">
+      {
+        "imports": {
+          "lit-element": "https://cdn.skypack.dev/lit-element@2.4.0",
+          "my-app": "./my-app.js"
+        }
+      }
+    </script -->
+    <script>
+      // default import maps
+      const imports = {
+        "lit-element": "https://cdn.skypack.dev/lit-element@2.4.0",
+        "my-app": "./my-app.js"
+      };
+      
+      // ugly sync request to read the config
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', 'config.json', false);
+      xhr.onload = () => {
+        const config = JSON.parse(xhr.responseText);
+        
+        // dynamically generate the merged import maps
+        const im = document.createElement('script');
+        im.type = 'importmap';
+        im.textContent = JSON.stringify({
+          imports: {
+            ...imports,
+            ...config
+          }
+        });
+        document.currentScript.after(im);
+      };
+      xhr.send();
+    </script>
+
+    <script type="module">
+      import AppComponent from 'my-app';
+      customElements.define('my-app', AppComponent);
+    </script>
+  </head>
+  <body>
+    <my-app>
+      <div slot="header">Custom header!</div>
+    </my-app>
+  </body>
+</html>
